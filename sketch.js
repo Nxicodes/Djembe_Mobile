@@ -72,7 +72,7 @@ function preload(){
     s_hit2 = loadSound("sound/hit2.wav");
     s_roll1 = loadSound("sound/roll1.wav");
     s_roll2 = loadSound("sound/roll2.wav");
-    s_grouphit = loadSound("sound/Grouphit.wav");
+    s_grouphit = loadSound("sound/grouphit.wav");
     console.log('All sounds loaded yeah?');
 
     dW = windowWidth;
