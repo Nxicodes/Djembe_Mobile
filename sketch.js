@@ -49,19 +49,19 @@ let s_hit1, s_hit2, s_roll1, s_roll2, s_grouphit;
 let noHitList = [0,2,4,6,8,11, 12,13];
 
 function preload(){
-    focused = loadAnimation("gif/0001.png", "gif/0062.png");
-    hit1 = loadAnimation("gif/0063.png", "gif/0084.png"); // animation
-    trans1 = loadAnimation("gif/0084.png", "gif/0111.png");
-    hit2 = loadAnimation("gif/0116.png", "gif/0141.png"); // animation
-    trans2 = loadAnimation("gif/0145.png", "gif/0169.png");
-    hit3 = loadAnimation("gif/0178.png", "gif/0200.png"); // animation
-    trans3 = loadAnimation("gif/0203.png", "gif/0228.png");
-    hit4 = loadAnimation("gif/0234.png", "gif/0254.png");// animation
-    trans4 = loadAnimation("gif/0254.png", "gif/0380.png");
-    hit5 = loadAnimation("gif/0405.png", "gif/0415.png");// animation
-    hit6 = loadAnimation("gif/0430.png", "gif/0454.png");// animation
-    climax = loadAnimation("gif/0455.png", "gif/0578.png");// animation
-    cooldown = loadAnimation("gif/0611.png", "gif/0759.png");// animation
+    focused = loadAnimation("gif/0001.jpg", "gif/0062.jpg");
+    hit1 = loadAnimation("gif/0063.jpg", "gif/0084.jpg"); // animation
+    trans1 = loadAnimation("gif/0084.jpg", "gif/0111.jpg");
+    hit2 = loadAnimation("gif/0116.jpg", "gif/0141.jpg"); // animation
+    trans2 = loadAnimation("gif/0145.jpg", "gif/0169.jpg");
+    hit3 = loadAnimation("gif/0178.jpg", "gif/0200.jpg"); // animation
+    trans3 = loadAnimation("gif/0203.jpg", "gif/0228.jpg");
+    hit4 = loadAnimation("gif/0234.jpg", "gif/0254.jpg");// animation
+    trans4 = loadAnimation("gif/0254.jpg", "gif/0380.jpg");
+    hit5 = loadAnimation("gif/0405.jpg", "gif/0415.jpg");// animation
+    hit6 = loadAnimation("gif/0430.jpg", "gif/0454.jpg");// animation
+    climax = loadAnimation("gif/0455.jpg", "gif/0578.jpg");// animation
+    cooldown = loadAnimation("gif/0611.jpg", "gif/0759.jpg");// animation
 
     aniList = ["focused", 'hit1', 'trans1', 'hit2', 'trans2', 'hit3', 'trans3', 'hit4', 'trans4', 'hit5', 'hit6', 'climax', 'cooldown'];
     console.log('made it here!');
