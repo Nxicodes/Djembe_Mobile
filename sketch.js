@@ -47,7 +47,7 @@ let s_hit1, s_hit2, s_roll1, s_roll2, s_grouphit;
 
 let noHitList = [0,2,4,6,8,11, 12,13];
 
-// 🚩 Flag to ensure camera/ML5 is initialized only once
+// Flag to ensure camera/ML5 is initialized only once
 let isInitialized = false; 
 
 
@@ -78,6 +78,8 @@ function initCameraAndML5() {
     cam.onReady(() => {
         let options = {
             maxFaces: 1,
+            // 💡 NEW: Reduced resolution for mobile performance
+            inputResolution: 256, 
             refineLandmarks: false,
             flipHorizontal: false
         };
@@ -128,8 +130,7 @@ function setup()
     createCanvas(dW, dH);
     lockGestures();
     
-    // 🚩 REMOVED: createPhoneCamera and enableCameraTap initialization 
-    // This is now handled in initCameraAndML5() called by touchStarted()
+    // Removed: createPhoneCamera and enableCameraTap initialization 
 
     djembe = createSprite(dW/2, dH/2, dW, dH);
     djembe.addAnimation('focused', focused);
@@ -138,206 +139,4 @@ function setup()
     djembe.addAnimation('hit2', hit2);
     djembe.addAnimation('trans2', trans2);
     djembe.addAnimation('hit3', hit3);
-    djembe.addAnimation('trans3', trans3);
-    djembe.addAnimation('hit4', hit4);
-    djembe.addAnimation('trans4', trans4);
-    djembe.addAnimation('hit5', hit5);
-    djembe.addAnimation('hit6', hit6);
-    djembe.addAnimation('climax', climax);
-    djembe.addAnimation('cooldown', cooldown);
-    djembe.changeAnimation('focused');
-    djembe.animation.stop();
-    djembe.animation.looping = false;
-    cAni = 0;
-    next = true;
-
-    
-}
-
-function draw()
-{
-    background(0);
-    djembe.draw();
-    
-    // Default gaze position (center)
-    let targetX = width / 2;
-    let targetY = height / 2;
-
-    // Process face data if detected
-    if (faces.length > 0) {
-        leftEarData = getKeypoint(leftEarIndex, 0);
-        rightEarData = getKeypoint(rightEarIndex, 0);
-        noseData = getKeypoint(noseIndex, 0);
-
-        if (leftEarData && rightEarData && noseData) {
-            calculateGaze();
-            detectNod(noseData.y);
-            targetX = gazeX;
-            targetY = gazeY;
-            
-            // Draw tracking points
-            push();
-            noStroke();
-            fill(255, 0, 0, 150);
-            circle(leftEarData.x, leftEarData.y, 15);
-            circle(rightEarData.x, rightEarData.y, 15);
-            fill(0, 255, 0, 150);
-            circle(noseData.x, noseData.y, 18);
-            pop();
-        }
-    }
-}
-
-function progressionHandler() {
-    console.log('we handling it');
-    if (pTally < cLevelCap){
-        console.log('count up!!');
-        pTally += 1;
-    } else {
-        if (aniList.length === cAni) {
-            cAni = 0
-        } else {
-            cAni +=1;
-        }
-        pTally = 0;
-        djembe.changeAnimation(aniList[cAni]);
-        djembe.animation.looping = false;
-    }
-}
-
-function calculateGaze() {
-    // Get raw 3D keypoints
-    let leftEarRaw = faces[0].keypoints[leftEarIndex];
-    let rightEarRaw = faces[0].keypoints[rightEarIndex];
-    let noseRaw = faces[0].keypoints[noseIndex];
-    
-    // Calculate face width
-    let faceWidth = abs(leftEarRaw.x - rightEarRaw.x);
-    
-    // Calculate center point between ears
-    let earCenterX = (leftEarRaw.x + rightEarRaw.x) / 2;
-    let earCenterY = (leftEarRaw.y + rightEarRaw.y) / 2;
-    
-    // Calculate nose offset from ear center
-    let noseOffsetX = noseRaw.x - earCenterX;
-    let noseOffsetY = noseRaw.y - earCenterY;
-    
-    // Normalize offsets by face width
-    let normalizedOffsetX = noseOffsetX / faceWidth;
-    let normalizedOffsetY = noseOffsetY / faceWidth;
-    
-    // Apply smoothing
-    let smoothedX = lerp(gazeX, width / 2 - (normalizedOffsetX * width * GAZE_RANGE_X), 1 - SMOOTHING_FACTOR);
-    let smoothedY = lerp(gazeY, height / 2 + (normalizedOffsetY * height * GAZE_RANGE_Y), 1 - SMOOTHING_FACTOR);
-    
-    // Set gaze position
-    gazeX = constrain(smoothedX, 0, width);
-    gazeY = constrain(smoothedY, 0, height);
-}
-
-function gotFaces(results) {
-    faces = results;
-}
-
-function getKeypoint(index, faceNumber = 0) {
-    if (!faces || faces.length === 0) return null;
-    if (faceNumber >= faces.length) return null;
-    if (!faces[faceNumber].keypoints) return null;
-    if (index >= faces[faceNumber].keypoints.length) return null;
-    
-    let keypoint = faces[faceNumber].keypoints[index];
-    // This may fail if cam is not ready, but it is protected by the faces.length > 0 check in draw()
-    let mapped = cam.mapKeypoint(keypoint); 
-    
-    return mapped;
-}
-
-function setNext(){
-    next = true;
-}
-
-function avoidDat(num){
-    for (x in noHitList){
-    if (num === noHitList[x])
-    {
-        return true;
-    } 
-    }
-    return false;
-}
-
-function makeSound(s){
-    if (s === "hit"){
-        if (cAni < 5){
-                s_hit1.play();
-            } else if (cAni < 7){
-                s_hit2.play();
-            } else {
-                s_grouphit.play();
-            } 
-    } else if (s === "roll") { // Added condition for "roll" sound
-        if (cAni < 9){
-            s_roll1.play();
-        } else {
-            s_roll2.play();
-        }
-    }
-}
-// Add this new function
-function detectNod(currentNoseY) {
-    //console.log('checking_nods');
-
-    let currentTime = millis();
-    let timeSinceBeat = currentTime - lastBeatTime;
-    
-    // Check if nod occurred (nose moved down by threshold)
-    if (currentNoseY - lastNoseY > nodThreshold && nodCooldown <= 0) {
-
-        nodOnBeat = (abs(timeSinceBeat) < beatSpeed +200 && abs(timeSinceBeat) > beatSpeed - difficulty); // Within 200ms of beat
-        console.log('Nod detected! On beat: ' + nodOnBeat + ". delay was:" + timeSinceBeat);
-        nodCooldown = 300; // Prevent multiple detections
-
-        lastBeatTime = currentTime;
-        if (!djembe.animation.playing){
-            if (avoidDat(cAni)) {
-                if (cAni < aniList.length){
-                    cAni +=1;
-                    makeSound("roll");
-                } else {
-                    cAni = 0;
-                }
-                
-                djembe.changeAnimation(aniList[cAni]);
-                djembe.animation.looping = false;
-                return
-            }
-            
-            
-            djembe.animation.play(0);
-            makeSound("hit");
-            if (nodOnBeat) {
-                progressionHandler();
-            }
-        } else {
-            if(avoidDat(cAni)){
-                console.log("avoiding doing anything");
-                return
-            } else {
-                makeSound("hit");
-                djembe.animation.play(0);
-                if (nodOnBeat) {
-                    progressionHandler();
-                }
-                    console.log('animation wasnt playing, but wasnt a trans, so we hitting');
-            }
-        }
-    }
-
-    
-    // Cooldown timer
-    if (nodCooldown > 0) {
-        nodCooldown -= deltaTime;
-    }
-    
-    lastNoseY = currentNoseY;
-}
+    d
